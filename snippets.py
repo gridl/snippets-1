@@ -25,11 +25,8 @@ def get(name,filename):
 		reader = csv.reader(f)
 		logging.debug("Reading the snippet from file")
 		for row in reader:
-			try:
-				if row[0]==name:
-					return name,row[1] 
-			except:
-				return "Error"
+			if row[0]==name:
+				return name,row[1] 
 	logging.debug("Read sucessful")
 	#return name, "Error"
 
@@ -71,8 +68,12 @@ def main():
 		
 	#Get
 	elif command == "get":
-		name,snippet = get(**arguments)
-		print "Retrieved {!r} from {!r}  ".format(name,snippet)
-
+		try:
+			name,snippet = get(**arguments)
+			print "Retrieved {!r} from {!r}  ".format(name,snippet)
+		except:
+			print ' Value does not exist '
+			logging.debug("Non existent value requested")
+	
 if __name__ == "__main__":
 	main()
