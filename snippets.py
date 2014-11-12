@@ -28,7 +28,28 @@ def get(name,filename):
 			if row[0]==name:
 				return name,row[1] 
 	logging.debug("Read sucessful")
-	#return name, "Error"
+	return name, None
+
+def update(name,snippet,filename):
+	"""Modifies an existing snippet"""
+	logging.info("Updating {!r}:{!r} to {!r}".format(name,snippet,filename))
+	logging.debug("Opening file")
+	with open(filename, "r") as f:
+		reader = csv.reader(f)
+		#iterate through file
+		list = []
+		for row in reader:
+			if row[0] == name:
+				row[1] = snippet
+				list.append(row)
+			else:
+				list.append(row)
+	with open(filename, "w") as f:	
+			writer = csv.writer(f)
+			logging.debug("Writing the snippet to file")
+			for row in list:
+				writer.writerow(row)
+	return name,snippet			
 
 def make_parser():
 	""" Construct a command line parser"""
@@ -50,8 +71,15 @@ def make_parser():
 	get_parser.add_argument("name",help = "the name of the snippet")
 	get_parser.add_argument("filename", default = "snippets.csv",nargs="?", help = "the snippet filename")
 	
-	return parser
 	
+	#Subparser for the update command
+	logging.debug("Constructing update subparser")
+	get_parser = subparsers.add_parser("update",help ="Update a snippet")
+	get_parser.add_argument("name",help = "the name of the snippet you want to modify")
+	get_parser.add_argument("snippet", help = "snippet text")
+	get_parser.add_argument("filename", default = "snippets.csv",nargs="?", help = "the snippet filename")
+	return parser
+	 
 def main():
 	""" main function"""
 	logging.info("Starting snippets")
@@ -68,12 +96,13 @@ def main():
 		
 	#Get
 	elif command == "get":
-		try:
-			name,snippet = get(**arguments)
-			print "Retrieved {!r} from {!r}  ".format(name,snippet)
-		except:
-			print ' Value does not exist '
-			logging.debug("Non existent value requested")
-	
+		name,snippet = get(**arguments)
+		print "Retrieved {!r} from {!r}  ".format(name,snippet)
+		
+	#Update
+	elif command =="update":
+		name,snippet = update(**arguments)
+		print "Updated {!r} to {!r}  ".format(name,snippet)  
+		
 if __name__ == "__main__":
 	main()
